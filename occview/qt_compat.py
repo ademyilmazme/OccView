@@ -11,7 +11,7 @@ try:
         QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
         QPushButton, QSplitter, QTreeWidget, QTreeWidgetItem, QStatusBar,
         QMenuBar, QMenu, QToolBar, QAction, QFileDialog, QMessageBox,
-        QDockWidget, QSizePolicy, QLabel
+        QDockWidget, QSizePolicy, QLabel, QActionGroup
     )
     from PyQt5.QtCore import Qt
     from PyQt5.QtGui import QIcon
@@ -22,7 +22,7 @@ except ImportError:
             QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
             QPushButton, QSplitter, QTreeWidget, QTreeWidgetItem, QStatusBar,
             QMenuBar, QMenu, QToolBar, QAction, QFileDialog, QMessageBox,
-            QDockWidget, QSizePolicy, QLabel
+            QDockWidget, QSizePolicy, QLabel, QActionGroup
         )
         from PySide2.QtCore import Qt
         from PySide2.QtGui import QIcon
@@ -35,7 +35,7 @@ except ImportError:
                 QMenuBar, QMenu, QToolBar, QFileDialog, QMessageBox,
                 QDockWidget, QSizePolicy, QLabel
             )
-            from PySide6.QtGui import QAction, QIcon
+            from PySide6.QtGui import QAction, QIcon, QActionGroup
             from PySide6.QtCore import Qt
             QT_BACKEND = "pyside6"
         except ImportError:
@@ -55,5 +55,5 @@ __all__ = [
     'QApplication', 'QMainWindow', 'QWidget', 'QVBoxLayout', 'QHBoxLayout',
     'QPushButton', 'QSplitter', 'QTreeWidget', 'QTreeWidgetItem', 'QStatusBar',
     'QMenuBar', 'QMenu', 'QToolBar', 'QAction', 'QFileDialog', 'QMessageBox',
-    'QDockWidget', 'QSizePolicy', 'QLabel', 'Qt', 'QIcon', 'QT_BACKEND'
+    'QDockWidget', 'QSizePolicy', 'QLabel', 'QActionGroup', 'Qt', 'QIcon', 'QT_BACKEND'
 ]

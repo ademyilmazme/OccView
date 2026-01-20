@@ -4,7 +4,8 @@ Main application window with UI layout and user interactions
 from .qt_compat import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
     QTreeWidget, QTreeWidgetItem, QStatusBar, QMenuBar, QMenu,
-    QToolBar, QAction, QFileDialog, QMessageBox, QSizePolicy, QLabel, Qt
+    QToolBar, QAction, QFileDialog, QMessageBox, QSizePolicy, QLabel,
+    QActionGroup, Qt
 )
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 
@@ -51,8 +52,13 @@ class MainWindow(QMainWindow):
         self._setup_central_widget()
         self._setup_status_bar()
 
+        # Set default selection mode to Face
+        self._action_sel_face.setChecked(True)
+        self.viewer.set_selection_mode("face")
+        self._status_bar.showMessage("Selection mode: Face")
+
     def _setup_menu_bar(self):
-        """Create the menu bar with File, View, Tools, Help menus"""
+        """Create the menu bar with File, View, Selection, Tools, Help menus"""
         menubar = self.menuBar()
 
         # File menu
@@ -88,6 +94,47 @@ class MainWindow(QMainWindow):
         self._action_toggle_trihedron = QAction("Toggle Trihedron", self)
         self._action_toggle_trihedron.triggered.connect(self._on_toggle_trihedron)
         view_menu.addAction(self._action_toggle_trihedron)
+
+        # Selection menu
+        selection_menu = menubar.addMenu("Selection")
+
+        # Create action group for mutually exclusive selection modes
+        self._selection_mode_group = QActionGroup(self)
+        self._selection_mode_group.setExclusive(True)
+
+        self._action_sel_vertex = QAction("Vertex", self)
+        self._action_sel_vertex.setCheckable(True)
+        self._action_sel_vertex.triggered.connect(lambda: self._on_set_selection_mode("vertex"))
+        self._selection_mode_group.addAction(self._action_sel_vertex)
+        selection_menu.addAction(self._action_sel_vertex)
+
+        self._action_sel_edge = QAction("Edge", self)
+        self._action_sel_edge.setCheckable(True)
+        self._action_sel_edge.triggered.connect(lambda: self._on_set_selection_mode("edge"))
+        self._selection_mode_group.addAction(self._action_sel_edge)
+        selection_menu.addAction(self._action_sel_edge)
+
+        self._action_sel_face = QAction("Face", self)
+        self._action_sel_face.setCheckable(True)
+        self._action_sel_face.triggered.connect(lambda: self._on_set_selection_mode("face"))
+        self._selection_mode_group.addAction(self._action_sel_face)
+        selection_menu.addAction(self._action_sel_face)
+
+        self._action_sel_solid = QAction("Solid", self)
+        self._action_sel_solid.setCheckable(True)
+        self._action_sel_solid.triggered.connect(lambda: self._on_set_selection_mode("solid"))
+        self._selection_mode_group.addAction(self._action_sel_solid)
+        selection_menu.addAction(self._action_sel_solid)
+
+        selection_menu.addSeparator()
+
+        self._action_clear_selection = QAction("Clear Selection", self)
+        self._action_clear_selection.triggered.connect(self._on_clear_selection)
+        selection_menu.addAction(self._action_clear_selection)
+
+        self._action_selection_info = QAction("Selection Info", self)
+        self._action_selection_info.triggered.connect(self._on_selection_info)
+        selection_menu.addAction(self._action_selection_info)
 
         # Tools menu
         tools_menu = menubar.addMenu("Tools")
@@ -132,6 +179,15 @@ class MainWindow(QMainWindow):
         toolbar.addAction(self._action_add_cylinder)
         toolbar.addSeparator()
         toolbar.addAction(self._action_clear)
+        toolbar.addSeparator()
+
+        # Add selection mode actions to toolbar
+        toolbar.addAction(self._action_sel_vertex)
+        toolbar.addAction(self._action_sel_edge)
+        toolbar.addAction(self._action_sel_face)
+        toolbar.addAction(self._action_sel_solid)
+        toolbar.addSeparator()
+        toolbar.addAction(self._action_clear_selection)
 
     def _setup_central_widget(self):
         """Create the central widget with splitter containing tree and viewer"""
@@ -290,6 +346,31 @@ class MainWindow(QMainWindow):
         self.viewer.toggle_trihedron(self._trihedron_visible)
         state = "visible" if self._trihedron_visible else "hidden"
         self._status_bar.showMessage(f"Trihedron: {state}")
+
+    def _on_set_selection_mode(self, mode):
+        """
+        Set the selection mode
+
+        Args:
+            mode: One of "vertex", "edge", "face", "solid"
+        """
+        self.viewer.set_selection_mode(mode)
+        mode_display = mode.capitalize()
+        self._status_bar.showMessage(f"Selection mode: {mode_display}")
+
+    def _on_clear_selection(self):
+        """Clear the current selection"""
+        self.viewer.clear_selection()
+        self._status_bar.showMessage("Selection cleared")
+
+    def _on_selection_info(self):
+        """Show information about the current selection"""
+        summary = self.viewer.get_selection_summary()
+        QMessageBox.information(
+            self,
+            "Selection Info",
+            summary
+        )
 
     def _on_about(self):
         """Show the About dialog"""
